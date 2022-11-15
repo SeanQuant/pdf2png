@@ -15,8 +15,15 @@ def pdf2png(filename, page_num=None, size_factor=1,):
     width, height = 0, 0
     mode = None  # as flag
 
+    if isinstance(page_num, int):
+        page_num = [page_num, ]
+    elif isinstance(page_num, (tuple, list)):
+        pass
+    else:
+        page_num = []
+
     for i, page in enumerate(pdf.pages()):
-        if (page_num is None) or (page_num == i):  # only use one page
+        if i in page_num:
             trans = fitz.Matrix(zoom_x, zoom_y)
             pm = page.get_pixmap(matrix=trans, alpha=False)
 
@@ -49,4 +56,4 @@ def pdf2png(filename, page_num=None, size_factor=1,):
 
 if __name__ == '__main__':
     filename = "./phycs2018.pdf"
-    pdf2png(filename, page_num=0)  # 将上述pdf的第0页转成图片
+    pdf2png(filename, page_num=(0, 1, 2))  # 将上述pdf的第0,1,2页转成图片(拼在一起)

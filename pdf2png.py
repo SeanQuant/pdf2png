@@ -3,7 +3,7 @@ import os
 from PIL import Image
 
 
-def pdf2png(filename, page_num=None, size_factor=1,):
+def pdf2png(filename, page_num=None, size_factor=1, ):
     print(filename)
     png_filename = filename[:filename.rindex(".pdf")] + ".png"
 
@@ -21,24 +21,25 @@ def pdf2png(filename, page_num=None, size_factor=1,):
         pass
     else:
         page_num = []
+    page_num = sorted(page_num)
+    for i in page_num:
+        if i >= pdf.page_count:
+            break
+        trans = fitz.Matrix(zoom_x, zoom_y)
+        pm = pdf.get_page_pixmap(i, matrix=trans, alpha=False)
 
-    for i, page in enumerate(pdf.pages()):
-        if i in page_num:
-            trans = fitz.Matrix(zoom_x, zoom_y)
-            pm = page.get_pixmap(matrix=trans, alpha=False)
+        sub_filename = png_filename + "-%d.png" % i
+        pm.save(sub_filename)
 
-            sub_filename = png_filename + "-%d.png" % i
-            pm.save(sub_filename)
+        png = Image.open(sub_filename)
+        png_list.append(png)
 
-            png = Image.open(sub_filename)
-            png_list.append(png)
+        if mode is None:
+            mode = png.mode
 
-            if mode is None:
-                mode = png.mode
-
-            width = max(width, png.width)
-            height += png.height
-            sub_png_list.append(sub_filename)
+        width = max(width, png.width)
+        height += png.height
+        sub_png_list.append(sub_filename)
 
     if mode is None:
         return False
@@ -56,4 +57,4 @@ def pdf2png(filename, page_num=None, size_factor=1,):
 
 if __name__ == '__main__':
     filename = "./phycs2018.pdf"
-    pdf2png(filename, page_num=(0, 1, 2))  # 将上述pdf的第0,1,2页转成图片(拼在一起)
+    pdf2png(filename, page_num=(0, 1, 2), size_factor=2)  # 将上述pdf的第0,1,2页转成图片(拼在一起)
